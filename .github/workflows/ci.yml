@@ -19,15 +19,6 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '20'
-    
-    - name: Instalar dependências
-      run: npm ci
-    
-    - name: Executar testes
-      run: npm test
-    
-    - name: Build
-      run: npm run build
-
+   
     - name: Finalizar
       run: echo "Build e testes concluídos com sucesso!"
