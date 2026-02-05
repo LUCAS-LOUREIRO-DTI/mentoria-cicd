@@ -1,0 +1,65 @@
+# Template Reutilizável - Validação de Código
+# Este workflow pode ser chamado por outros workflows
+name: Template - Validação
+
+on:
+  workflow_call:
+    inputs:
+      ambiente:
+        description: 'Ambiente de execução (desenvolvimento, homologacao, producao)'
+        required: true
+        type: string
+      nome:
+        description: 'Nome para exibir no Hello World'
+        required: true
+        type: string
+      executar-testes:
+        description: 'Executar testes automatizados'
+        required: false
+        type: boolean
+        default: true
+    secrets:
+      token-deploy:
+        description: 'Token para deploy (opcional)'
+        required: false
+    outputs:
+      resultado:
+        description: 'Resultado da validação'
+        value: ${{ jobs.validar.outputs.status }}
+
+jobs:
+  validar:
+    runs-on: ubuntu-latest
+    outputs:
+      status: ${{ steps.validacao.outputs.status }}
+    
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+      
+      - name: Dar permissão ao script
+        run: chmod +x ./scripts/validar-codigo.sh
+      
+      - name: Executar script de validação
+        id: validacao
+        run: |
+          echo "Executando script bash da pasta scripts/"
+          ./scripts/validar-codigo.sh "${{ inputs.ambiente }}" "${{ inputs.nome }}"
+          echo "status=sucesso" >> $GITHUB_OUTPUT
+      
+      - name: Executar testes
+        if: ${{ inputs.executar-testes }}
+        run: |
+          echo "Executando testes para ambiente: ${{ inputs.ambiente }}"
+          echo "Testes simulados executados com sucesso!"
+      
+      - name: Resumo da execução
+        run: |
+          echo "## Resumo da Validação" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Item | Valor |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Nome | ${{ inputs.nome }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Ambiente | ${{ inputs.ambiente }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Testes | ${{ inputs.executar-testes }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Status | Sucesso |" >> $GITHUB_STEP_SUMMARY
