@@ -1,24 +1,52 @@
-name: CI Básico
+# Workflow Principal - Demonstração de Templates Reutilizáveis
+name: CI Pipeline
 
 on:
   push:
     branches: [ main, develop ]
   pull_request:
     branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      ambiente:
+        description: 'Ambiente para validação'
+        required: true
+        default: 'desenvolvimento'
+        type: choice
+        options:
+          - desenvolvimento
+          - homologacao
+          - producao
 
-# Jobs que serão executados
 jobs:
-  build:
+  # Job 1: Chamada do template reutilizável para desenvolvimento
+  validacao-dev:
+    uses: ./.github/workflows/template-validacao.yml
+    with:
+      ambiente: desenvolvimento
+      nome: Lucas
+      executar-testes: true
+
+  # Job 2: Chamada do template para homologação (após dev)
+  validacao-hml:
+    needs: validacao-dev
+    uses: ./.github/workflows/template-validacao.yml
+    with:
+      ambiente: homologacao
+      nome: Lucas
+      executar-testes: true
+
+  # Job 3: Deploy (usando output do template)
+  deploy:
+    needs: [validacao-dev, validacao-hml]
     runs-on: ubuntu-latest
-    
     steps:
-    - name: Checkout do código
-      uses: actions/checkout@v4
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-   
-    - name: Finalizar
-      run: echo "Build e testes concluídos com sucesso!"
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Simular deploy
+        run: |
+          echo "Deploy iniciado!"
+          echo "Status da validação DEV: ${{ needs.validacao-dev.outputs.resultado }}"
+          echo "Status da validação HML: ${{ needs.validacao-hml.outputs.resultado }}"
+          echo "Deploy concluído com sucesso!"
