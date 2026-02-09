@@ -1,0 +1,33 @@
+name: Template de Validação
+
+on:
+  workflow_call:
+    inputs:
+      ambiente:
+        description: Ambiente de validação
+        required: false
+        type: string
+        default: desenvolvimento
+      nome:
+        description: Nome para saudação
+        required: false
+        type: string
+        default: Mundo
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Instalar dependências
+        run: npm install
+
+      - name: Validar código (TypeScript)
+        run: npm run validate -- ${{ inputs.ambiente }} ${{ inputs.nome }}
