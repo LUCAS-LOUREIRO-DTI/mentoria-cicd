@@ -47,9 +47,12 @@ jobs:
 
       - name: Executar deploy
         id: deploy
+        env:
+          VARIABLE_HELLO: ${{ vars.VARIABLE_HELLO }}
         run: |
           echo "🚀 Iniciando deploy para ${{ inputs.environment }}..."
           echo "📦 Versão: ${{ inputs.version }}"
+          echo "💬 Mensagem: $VARIABLE_HELLO"
           echo ""
           
           # Simulação de deploy baseado no ambiente
