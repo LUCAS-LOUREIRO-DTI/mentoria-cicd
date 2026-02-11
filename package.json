@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "validate": "ts-node scripts/validar-codigo.ts"
+    "validate": "ts-node scripts/validar-codigo.ts",
+    "build": "echo '🏗️  Build simulado executado com sucesso!' && exit 0"
   },
   "devDependencies": {
     "ts-node": "^10.9.2",

@@ -26,3 +26,23 @@ jobs:
    
     - name: Finalizar
       run: echo "Build e testes concluídos com sucesso!"
+
+  # Deploy para Staging (automático)
+  deploy-staging:
+    name: Deploy Staging
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    uses: ./.github/workflows/deploy.yml
+    with:
+      environment: staging
+      version: ${{ github.sha }}
+
+  # Deploy para Production (automático na main, pode adicionar aprovação manual)
+  deploy-production:
+    name: Deploy Production
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/deploy.yml
+    with:
+      environment: production
+      version: ${{ github.sha }}
